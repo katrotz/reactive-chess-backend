@@ -2,7 +2,7 @@
   "name": "reactive-chess-backend",
   "version": "0.1.0",
   "description": "Reactive chess backend implementation",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -25,5 +25,13 @@
   "bugs": {
     "url": "https://github.com/katrotz/reactive-chess-backend/issues"
   },
-  "homepage": "https://github.com/katrotz/reactive-chess-backend#readme"
+  "homepage": "https://github.com/katrotz/reactive-chess-backend#readme",
+  "dependencies": {
+    "compression": "^1.7.0",
+    "express": "^4.15.3",
+    "express-graphql": "^0.6.7",
+    "graphql": "^0.10.5",
+    "minimist": "^1.2.0",
+    "winston": "^2.3.1"
+  }
 }
