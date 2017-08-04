@@ -1,9 +1,6 @@
 const logger = require('winston');
 const express = require('express');
 
-const controllers = require('./controllers');
-const middlewares = require('./middlewares');
-
 const ENVIRONMENTS = {
     PROD: 'production',
     DEV: 'development'
@@ -16,6 +13,14 @@ let cfgPort = 8080;
 let cfgEnvironment = ENVIRONMENTS.DEV;
 
 module.exports = class ReactiveChessBackend {
+    static get app () {
+        return app;
+    }
+
+    static get server () {
+        return server;
+    }
+
     static setPort(port) {
         cfgPort = Number(port);
         return ReactiveChessBackend;
@@ -34,11 +39,11 @@ module.exports = class ReactiveChessBackend {
         app.set('documentRoot', __dirname);
         app.set('environment', require(`./environments/${cfgEnvironment}`));
 
-        middlewares.pre.map(middleware => app.use(middleware));
+        require('./middlewares').pre.map(middleware => app.use(middleware));
 
-        app.use('/', controllers);
+        app.use('/', require('./controllers'));
 
-        middlewares.post.map(middleware => app.use(middleware));
+        require('./middlewares').post.map(middleware => app.use(middleware));
 
         server = app.listen(cfgPort, () => logger.info(`Server is running on port ${cfgPort}`));
 

@@ -1,20 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const graphqlHTTP = require('express-graphql');
-const { buildSchema } = require('graphql');
 
-const schema = buildSchema(`
-  type Query {
-    hello: String
-  }
-`);
+const app = require('./../../index').app;
+const graphqlService = require('./../../services/graphql');
 
-const rootValue = { hello: () => 'Hello world!' };
+const environment = app.get('environment');
 
-router.use('/', graphqlHTTP({
-    schema,
-    rootValue,
-    graphiql: true
-}));
+const schema = graphqlService.schema;
+const graphiql = (environment.name !== 'production');
+const pretty = true;
+
+router.use('/', graphqlHTTP({schema, graphiql, pretty}));
 
 module.exports = router;
