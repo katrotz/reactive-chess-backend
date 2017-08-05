@@ -2,7 +2,7 @@ const { GraphQLSchema, GraphQLObjectType, GraphQLString } = require('graphql');
 
 const getGreeting = (name) => new Promise((resolve) => resolve(`Async greeting, ${name || 'world'}`));
 
-const chessQuery = new GraphQLObjectType({
+const query = new GraphQLObjectType({
     name: 'Query',
     fields: () => ({
         greeting: {
@@ -24,9 +24,8 @@ const chessQuery = new GraphQLObjectType({
     })
 });
 
+const types = [];
+
 module.exports = {
-    schema: new GraphQLSchema({
-        query: chessQuery,
-        types: []
-    })
+    schema: new GraphQLSchema({query, types})
 };

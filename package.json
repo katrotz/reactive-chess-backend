@@ -4,7 +4,8 @@
   "description": "Reactive chess backend implementation",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js --watch"
   },
   "repository": {
     "type": "git",
@@ -31,7 +32,13 @@
     "express": "^4.15.3",
     "express-graphql": "^0.6.7",
     "graphql": "^0.10.5",
+    "graphql-redis-subscriptions": "^1.2.0",
+    "lodash": "^4.17.4",
     "minimist": "^1.2.0",
+    "subscriptions-transport-ws": "^0.8.2",
     "winston": "^2.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0"
   }
 }
