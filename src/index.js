@@ -35,6 +35,7 @@ module.exports = class ReactiveChessBackend {
         if (app) return app;
 
         app = express();
+        server = app.listen(cfgPort, () => logger.info(`Server is running on port ${cfgPort}`));
 
         app.set('documentRoot', __dirname);
         app.set('environment', require(`./environments/${cfgEnvironment}`));
@@ -44,8 +45,6 @@ module.exports = class ReactiveChessBackend {
         app.use('/', require('./controllers'));
 
         require('./middlewares').post.map(middleware => app.use(middleware));
-
-        server = app.listen(cfgPort, () => logger.info(`Server is running on port ${cfgPort}`));
 
         process.on('SIGINT', () => {
             process.exit();

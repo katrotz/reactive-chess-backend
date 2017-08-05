@@ -11,6 +11,8 @@ const schema = graphqlService.schema;
 const graphiql = (environment.name !== 'production');
 const pretty = true;
 
+require('./subscriptions');
+
 router.use('/', graphqlHTTP({schema, graphiql, pretty}));
 
 module.exports = router;
