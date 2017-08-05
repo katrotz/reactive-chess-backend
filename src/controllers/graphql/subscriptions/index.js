@@ -5,10 +5,9 @@ const app = require('./../../../index').app;
 const server = require('./../../../index').server;
 const graphqlService = require('./../../../services/graphql');
 
-const environment = app.get('environment');
-
 const schema = graphqlService.schema;
+const path = (__dirname).replace(`${app.get('documentRoot')}/controllers`, '');
 
-const subscriptionServer = new SubscriptionServer({ schema, execute, subscribe }, { server, path: '/graphql/subscriptions' });
+const subscriptionServer = new SubscriptionServer({ schema, execute, subscribe }, { server, path });
 
 module.exports = subscriptionServer;
