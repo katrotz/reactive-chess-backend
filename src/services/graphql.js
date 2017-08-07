@@ -1,71 +1,31 @@
-const { GraphQLSchema, GraphQLObjectType, GraphQLInputObjectType, GraphQLString, GraphQLEnumType, GraphQLList, GraphQLNonNull } = require('graphql');
+const _ = require('lodash');
+const { GraphQLSchema, GraphQLObjectType, GraphQLList, GraphQLString } = require('graphql');
 
-const boards = [{turn: 'w', captured: {w: [], b: []}, fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'}];
+const ChessSessionType = require('./graphql/types/chess-session-type');
+const ChessPlayerInput = require('./graphql/types/chess-player-input-type');
+const ChessBoardInputType = require('./graphql/types/chess-board-input-type');
 
-const getBoard = (gameId) => new Promise((resolve => resolve(boards[0])));
+const chess = require('./chess');
 
-const ChessColorType = new GraphQLEnumType({
-    name: 'ChessColor',
-    description: 'The chess game piece color (white|black)',
-    values: {
-        w: { value: 'w', description: 'White color player' },
-        b: { value: 'b', description: 'Black color player' }
-    }
-});
-
-const ChessPieceType = new GraphQLEnumType({
-    name: 'ChessPiece',
-    description: 'The chess game piece type',
-    values: {
-        p: { value: 'p', description: 'Pawn piece type' },
-        n: { value: 'n', description: 'Knight piece type' },
-        b: { value: 'b', description: 'Bishop piece type' },
-        r: { value: 'r', description: 'Rook piece type' },
-        q: { value: 'q', description: 'Queen piece type' },
-        k: { value: 'k', description: 'King piece type' }
-    }
-});
-
-const BoardType = new GraphQLObjectType({
-    name: 'Board',
-    description: 'Describes the board state in the chess game',
-    fields: () => ({
-        turn: {
-            type: new GraphQLNonNull(ChessColorType),
-            description: 'The current player to make the move'
-        },
-        captured: {
-            type: new GraphQLObjectType({
-                name: 'CapturedType',
-                fields: () => ({
-                    w: { type: new GraphQLList(ChessPieceType) },
-                    b: { type: new GraphQLList(ChessPieceType) },
-                })
-            }),
-            description: 'Holds the captured pieces in the current game'
-        },
-        fen: {
-            type: GraphQLString,
-            description: 'The current chess game Forsyth–Edwards Notation'
-        }
-    })
-});
-
-const types = [ ChessColorType, ChessPieceType, BoardType ];
+const types = [ ];
 
 const query = new GraphQLObjectType({
     name: 'Query',
     fields: () => ({
-        board: {
-            type: BoardType,
-            description: 'The current game board state',
+        sessions: {
+            type: new GraphQLList(ChessSessionType),
+            description: 'Lists the game sessions',
+            resolve: (root, { sessionId }) => chess.listGames()
+        },
+        fetchGame: {
+            type: ChessSessionType,
+            description: 'Fetches a game session',
             args: {
-                gameId: {
-                    description: 'The game id',
+                sessionId: {
                     type: GraphQLString
                 }
             },
-            resolve: (root, { gameId }) => getBoard(gameId)
+            resolve: (root, { sessionId }) => chess.fetchGame(sessionId)
         }
     })
 });
@@ -73,29 +33,44 @@ const query = new GraphQLObjectType({
 const mutation = new GraphQLObjectType({
     name: 'Mutation',
     fields: {
-        updateBoard: {
-            type: BoardType,
+        createGame: {
+            type: GraphQLString,
+            description: 'Player creates a game session and automatically enrolls to play with white pieces',
             args: {
-                turn: {
-                    type: GraphQLString
-                },
-                captured: {
-                    type: new GraphQLInputObjectType({
-                        name: 'CapturedInputType',
-                        fields: () => ({
-                            w: { type: new GraphQLList(ChessPieceType) },
-                            b: { type: new GraphQLList(ChessPieceType) },
-                        })
-                    })
+                user: {
+                    type: ChessPlayerInput
                 }
             },
-            resolve: (root, { turn, captured }) => {
-                if (turn) boards[0].turn = turn;
-
-                if (captured) boards[0].captured = captured;
-
-                return boards[0];
-            }
+            resolve: (root, { user }) => chess.createGame(user)
+        },
+        joinGame: {
+            type: ChessSessionType,
+            description: 'Player joins a game session and automatically enrolls to play with black pieces',
+            args: {
+                sessionId: {
+                    type: GraphQLString
+                },
+                user: {
+                    type: ChessPlayerInput
+                }
+            },
+            resolve: (root, { sessionId, user }) => chess.joinGame(sessionId, user)
+        },
+        updateGame: {
+            type: ChessSessionType,
+            description: 'Updates a game',
+            args: {
+                sessionId: {
+                    type: GraphQLString
+                },
+                user: {
+                    type: ChessPlayerInput
+                },
+                board: {
+                    type: ChessBoardInputType
+                }
+            },
+            resolve: (root, { sessionId, user, board }) => chess.updateGame(sessionId, user, board)
         }
     }
 });
